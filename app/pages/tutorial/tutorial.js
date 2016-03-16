@@ -2,6 +2,7 @@ import {Page, NavController, MenuController} from 'ionic-angular';
 import {Inject} from 'angular2/core';
 import {TabsPage} from '../tabs/tabs';
 import {SignupPage} from '../signup/signup';
+import {LoginPage} from '../login/login';
 
 
 @Page({
@@ -37,7 +38,7 @@ export class TutorialPage {
   }
 
   startApp() {
-    this.nav.push(TabsPage);
+    this.nav.push(LoginPage);
   }
 
   onSlideChangeStart(slider) {

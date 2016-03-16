@@ -51,8 +51,8 @@ class ConferenceApp {
     ];
 
     this.loggedOutPages = [
-      { title: 'Login', component: LoginPage, icon: 'log-in' },
-      { title: 'Signup', component: SignupPage, icon: 'person-add' }
+      { title: 'Login', component: LoginPage, icon: 'log-in' }
+      //{ title: 'Signup', component: SignupPage, icon: 'person-add' }
     ]
 
     // decide which menu items should be hidden by current login status stored in local storage

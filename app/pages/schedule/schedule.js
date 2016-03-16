@@ -31,23 +31,32 @@ export class SchedulePage {
 
     this.hasSessions = false;
     this.groups = [];
+    this.headers = {
+      'X-ZUMO-AUTH': this.user.loginToken
+      };
 
-    this.client = new WindowsAzure.MobileServiceClient('https://testingwithazure.azurewebsites.net/');
+      this.init = {
+          headers: new Headers(this.headers)
+      };
+
+    //this.client = new WindowsAzure.MobileServiceClient('https://testingwithazure.azurewebsites.net/');
+    //this.todoItemTable = this.client.getTable('todoitem');  
+    this.todoItemTable = this.user.todoItemTable;
+    this.refreshDisplay();
     this.updateSchedule();
-    (this.refreshLogin.bind(this))();
   }
 
-  refreshLogin() {
-    this.client.login('twitter').then(this.loginResponse.bind(this));
-  };
+  // refreshLogin() {
+  //   //this.client.login('twitter').then(this.loginResponse.bind(this));
+  // };
 
-  loginResponse(response) {
-        // BEGINNING OF ORIGINAL CODE
-        this.token = response.mobileServiceAuthenticationToken;
-        // Create a table reference
-         this.todoItemTable = this.client.getTable('todoitem');   
-         this.refreshDisplay();
-  }
+  // loginResponse(response) {
+  //       // BEGINNING OF ORIGINAL CODE
+  //       this.token = response.mobileServiceAuthenticationToken;
+  //       // Create a table reference
+  //        this.todoItemTable = this.client.getTable('todoitem');   
+  //        this.refreshDisplay();
+  // }
 
   refreshDisplay() {
       this.todoItemTable
@@ -57,6 +66,7 @@ export class SchedulePage {
 
     createTodoItemList(itemList) {
       this.items = itemList;
+      console.log('i am executing', this.items);
 
       itemList.forEach(function(item) {
         this.user.addFavorite(item.text);
@@ -127,9 +137,10 @@ export class SchedulePage {
               this.items.forEach(function(item) {
               if(!item.deleted && item.text == sessionData.name) {
               console.log('trying to delete', item.id);  
+
               this.todoItemTable.del({
                 id: item.id
-             }).then(function(data){
+             },this.init).then(function(data){
                 console.log('promisereturn', data)
               }, function error(error){
                 console.error('here is the error', error);
@@ -151,13 +162,14 @@ export class SchedulePage {
       this.user.addFavorite(sessionData.name);
     
       console.log('sup', sessionData);
-
+      console.log('userdata', this.user.loginToken);
         this.todoItemTable.insert({
           text: sessionData.name,
           complete: false,
-          userid: this.token
-        }).then(function(data){
-          console.log('promisereturn', data)
+          userid: this.user.loginToken
+        }, this.init).then(function(data){
+          this.items.push(data);
+          console.log('promisereturn', data, this.items);
         }, function error(error){
           console.error('here is the error', error);
         });
