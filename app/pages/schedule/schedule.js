@@ -38,25 +38,10 @@ export class SchedulePage {
       this.init = {
           headers: new Headers(this.headers)
       };
-
-    //this.client = new WindowsAzure.MobileServiceClient('https://testingwithazure.azurewebsites.net/');
-    //this.todoItemTable = this.client.getTable('todoitem');  
     this.todoItemTable = this.user.todoItemTable;
     this.refreshDisplay();
     this.updateSchedule();
   }
-
-  // refreshLogin() {
-  //   //this.client.login('twitter').then(this.loginResponse.bind(this));
-  // };
-
-  // loginResponse(response) {
-  //       // BEGINNING OF ORIGINAL CODE
-  //       this.token = response.mobileServiceAuthenticationToken;
-  //       // Create a table reference
-  //        this.todoItemTable = this.client.getTable('todoitem');   
-  //        this.refreshDisplay();
-  // }
 
   refreshDisplay() {
       this.todoItemTable
@@ -70,7 +55,8 @@ export class SchedulePage {
 
       itemList.forEach(function(item) {
         this.user.addFavorite(item.text);
-      }, this);       
+      }, this);     
+      this.updateFavourites();  
     }
 
     handleError(error) {
@@ -82,6 +68,17 @@ export class SchedulePage {
 
   onPageDidEnter() {
     this.app.setTitle('Schedule');
+  }
+
+  updateFavourites() {
+      this.groups.forEach(function(sessions) {
+        var sessions = sessions.sessions
+        sessions.forEach(function(session) {
+          if(this.user.hasFavorite(session.name)){
+            session.favorited = true;
+        }
+      }, this);
+    }, this);  
   }
 
   updateSchedule() {
@@ -110,6 +107,51 @@ export class SchedulePage {
     this.nav.push(SessionDetailPage, sessionData);
   }
 
+  removeFavorite(slidingItem, sessionData) {
+   // woops, they already favorited it! What shall we do!?
+   // create an alert instance
+   let alert = Alert.create({
+     title: 'Favorite already added',
+     message: 'Would you like to remove this session from your favorites?',
+     buttons: [
+       {
+         text: 'Cancel',
+         handler: () => {
+           // they clicked the cancel button, do not remove the session
+           // close the sliding item and hide the option buttons
+           slidingItem.close();
+         }
+       },
+       {
+         text: 'Remove',
+         handler: () => {
+           // they want to remove this session from their favorites
+           this.user.removeFavorite(sessionData.name);
+
+           this.items.forEach(function(item) {
+           if(!item.deleted && item.text == sessionData.name) {
+           console.log('trying to delete', item.id);
+           this.todoItemTable.del({
+             id: item.id
+          },this.init).then(function(data){
+             console.log('promisereturn', data)
+           }, function error(error){
+             console.error('here is the error', error);
+           }); 
+           }
+         }, this);
+
+
+           // close the sliding item and hide the option buttons
+           slidingItem.close();
+         }
+       }
+     ]
+   });
+   // now present the alert on top of all other content
+   this.nav.present(alert); 
+  }
+
   addFavorite(slidingItem, sessionData) {
     console.log(sessionData, slidingItem);
 
@@ -134,10 +176,10 @@ export class SchedulePage {
             handler: () => {
               // they want to remove this session from their favorites
               this.user.removeFavorite(sessionData.name);
+
               this.items.forEach(function(item) {
               if(!item.deleted && item.text == sessionData.name) {
-              console.log('trying to delete', item.id);  
-
+              console.log('trying to delete', item.id);
               this.todoItemTable.del({
                 id: item.id
              },this.init).then(function(data){
@@ -145,9 +187,10 @@ export class SchedulePage {
               }, function error(error){
                 console.error('here is the error', error);
               }); 
-                
               }
             }, this);
+
+
               // close the sliding item and hide the option buttons
               slidingItem.close();
             }
@@ -168,9 +211,12 @@ export class SchedulePage {
           complete: false,
           userid: this.user.loginToken
         }, this.init).then(function(data){
+          console.log('lets bind');
           this.items.push(data);
-          console.log('promisereturn', data, this.items);
-        }, function error(error){
+          console.log('promisereturn', data, typeof(this.items), this.items);
+          console.log('lets bind2');
+
+        }.bind(this), function error(error){
           console.error('here is the error', error);
         });
 
@@ -187,6 +233,7 @@ export class SchedulePage {
       });
       // now present the alert on top of all other content
       this.nav.present(alert);
+      this.updateFavourites(); 
     }
 
   }

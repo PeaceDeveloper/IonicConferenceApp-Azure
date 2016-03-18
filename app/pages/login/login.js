@@ -2,6 +2,7 @@ import {IonicApp, Page, NavController} from 'ionic-angular';
 import {Inject} from 'angular2/core';
 import {TabsPage} from '../tabs/tabs';
 import {SignupPage} from '../signup/signup';
+import {SchedulePage} from '../schedule/schedule';
 import {UserData} from '../../providers/user-data';
 
 
@@ -27,7 +28,8 @@ export class LoginPage {
   }
 
   doLogin(socialNetwork) {
-    this.client.login(socialNetwork).then(this.loginResponse.bind(this));
+      //this.nav.push(TabsPage); 
+    this.client.login(socialNetwork).done(this.loginResponse.bind(this));
   }
 
   loginResponse(response) {
@@ -39,12 +41,15 @@ export class LoginPage {
   console.log('here is the token', this.userData.loginToken, this.userData);
 
   this.userData.login();
-  this.nav.push(TabsPage); 
-  this.authenticated = true;     
+  this.nav.push(SchedulePage); 
+  
+  // setInterval(() => {  
+  //   console.log('zoning');
+  // }, 3000); 
+
   }
 
   gotoSchedule() {
-
   this.userData.login();
   this.nav.push(TabsPage); 
 

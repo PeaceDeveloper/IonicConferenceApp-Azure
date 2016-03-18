@@ -12,14 +12,14 @@
     <div class="logo">
       <img src="img/appicon.svg">
     </div>
-    <div>
+    <div [hidden]="authenticated">
       
     <center><img src="img/facebook.png" (click)="doLogin('facebook')" style="width:222px"></center>
     <center><img src="img/twitter.png"  (click)="doLogin('twitter')" style="width:218px"></center>
     <center><img src="img/googleplus.png" (click)="doLogin('google')" style="width:228px"></center>
     </div>
 
-    <div padding [hidden]="authenticated">
+    <div>
         <button (click)="gotoSchedule()" primary block>Next</button>
     </div>
 

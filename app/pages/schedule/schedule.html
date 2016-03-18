@@ -48,9 +48,13 @@
         </button>
 
         <ion-item-options>
-          <button favorite (click)="addFavorite(slidingItem, session)" *ngIf="segment === 'all'">
+          <button favorite (click)="addFavorite(slidingItem, session)" *ngIf="segment === 'all' && !session.favorited">
             Favorite
           </button>
+          <button danger (click)="removeFavorite(slidingItem, session)" *ngIf="session.favorited">
+            Remove
+          </button>
+
         </ion-item-options>
 
       </ion-item-sliding>
