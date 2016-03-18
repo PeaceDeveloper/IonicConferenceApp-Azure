@@ -76,6 +76,9 @@ export class SchedulePage {
         sessions.forEach(function(session) {
           if(this.user.hasFavorite(session.name)){
             session.favorited = true;
+        } else {
+          session.favorited = false;
+          this.user.removeFavorite(session.name);
         }
       }, this);
     }, this);  
@@ -111,7 +114,7 @@ export class SchedulePage {
    // woops, they already favorited it! What shall we do!?
    // create an alert instance
    let alert = Alert.create({
-     title: 'Favorite already added',
+     title: 'Remove Favorite',
      message: 'Would you like to remove this session from your favorites?',
      buttons: [
        {
@@ -134,7 +137,7 @@ export class SchedulePage {
            this.todoItemTable.del({
              id: item.id
           },this.init).then(function(data){
-             console.log('promisereturn', data)
+             console.log('favorite removed');
            }, function error(error){
              console.error('here is the error', error);
            }); 
@@ -144,64 +147,18 @@ export class SchedulePage {
 
            // close the sliding item and hide the option buttons
            slidingItem.close();
+           this.updateFavourites(); 
          }
        }
      ]
    });
    // now present the alert on top of all other content
    this.nav.present(alert); 
+
   }
 
   addFavorite(slidingItem, sessionData) {
-    console.log(sessionData, slidingItem);
-
-
-    if (this.user.hasFavorite(sessionData.name)) {
-      // woops, they already favorited it! What shall we do!?
-      // create an alert instance
-      let alert = Alert.create({
-        title: 'Favorite already added',
-        message: 'Would you like to remove this session from your favorites?',
-        buttons: [
-          {
-            text: 'Cancel',
-            handler: () => {
-              // they clicked the cancel button, do not remove the session
-              // close the sliding item and hide the option buttons
-              slidingItem.close();
-            }
-          },
-          {
-            text: 'Remove',
-            handler: () => {
-              // they want to remove this session from their favorites
-              this.user.removeFavorite(sessionData.name);
-
-              this.items.forEach(function(item) {
-              if(!item.deleted && item.text == sessionData.name) {
-              console.log('trying to delete', item.id);
-              this.todoItemTable.del({
-                id: item.id
-             },this.init).then(function(data){
-                console.log('promisereturn', data)
-              }, function error(error){
-                console.error('here is the error', error);
-              }); 
-              }
-            }, this);
-
-
-              // close the sliding item and hide the option buttons
-              slidingItem.close();
-            }
-          }
-        ]
-      });
-      // now present the alert on top of all other content
-      this.nav.present(alert);
-
-    } else {
-      // remember this session as a user favorite
+   
       this.user.addFavorite(sessionData.name);
     
       console.log('sup', sessionData);
@@ -228,14 +185,12 @@ export class SchedulePage {
           handler: () => {
             // close the sliding item
             slidingItem.close();
+            this.updateFavourites(); 
           }
         }]
       });
       // now present the alert on top of all other content
       this.nav.present(alert);
-      this.updateFavourites(); 
-    }
-
   }
 
 }
