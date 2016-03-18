@@ -4,6 +4,7 @@ import {TabsPage} from '../tabs/tabs';
 import {SignupPage} from '../signup/signup';
 import {SchedulePage} from '../schedule/schedule';
 import {UserData} from '../../providers/user-data';
+import {Component, View, NgZone} from 'angular2/core';
 
 
 @Page({
@@ -25,6 +26,19 @@ export class LoginPage {
     this.submitted = false;
     this.client = new WindowsAzure.MobileServiceClient('https://testingwithazure.azurewebsites.net/');
 
+      this.myZoneSpec = {
+  beforeTask: function () {
+    console.log('Before task');
+      this.userData.login();
+  this.nav.push(TabsPage); 
+  }.bind(this),
+  afterTask: function () {
+    console.log('After task');
+      this.userData.login();
+  this.nav.push(TabsPage); 
+  }.bind(this)
+};
+
   }
 
   doLogin(socialNetwork) {
@@ -33,21 +47,26 @@ export class LoginPage {
   }
 
   loginResponse(response) {
+    console.log('auth response', response);
         // BEGINNING OF ORIGINAL CODE
-  this.token = response.mobileServiceAuthenticationToken;
+  this.token = response.userId;
   this.userData.loginToken = this.token;
   this.todoItemTable = this.client.getTable('todoitem'); 
   this.userData.todoItemTable = this.todoItemTable;
   console.log('here is the token', this.userData.loginToken, this.userData);
 
-  this.userData.login();
-  this.nav.push(SchedulePage); 
+  // this.userData.login();
+  // this.nav.push(SchedulePage); 
   
-  // setInterval(() => {  
-  //   console.log('zoning');
-  // }, 3000); 
+
+this.myZone = zone.fork(this.myZoneSpec);
+this.myZone.run().bind(this);
+ 
 
   }
+
+
+
 
   gotoSchedule() {
   this.userData.login();

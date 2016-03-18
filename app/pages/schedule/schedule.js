@@ -5,7 +5,6 @@ import {UserData} from '../../providers/user-data';
 import {ScheduleFilterPage} from '../schedule-filter/schedule-filter';
 import {SessionDetailPage} from '../session-detail/session-detail';
 
-
 @Page({
   templateUrl: 'build/pages/schedule/schedule.html'
 })
@@ -19,7 +18,7 @@ export class SchedulePage {
     this.nav = nav;
     this.confData = confData;
     this.user = user;
-    this.items;
+    this.items=[];
     this.token;
     this.todoItemTable;
 
@@ -50,12 +49,14 @@ export class SchedulePage {
   }
 
     createTodoItemList(itemList) {
-      this.items = itemList;
-      console.log('i am executing', this.items);
 
       itemList.forEach(function(item) {
+        if(item.userid === this.user.loginToken){
+        this.items.push(item);
         this.user.addFavorite(item.text);
+        }
       }, this);     
+      console.log('i am executing', this.items);
       this.updateFavourites();  
     }
 
